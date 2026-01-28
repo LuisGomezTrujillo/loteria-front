@@ -19,7 +19,7 @@ const TVPage = () => {
 
     axios.get('./sorteo.json')
       .then(res => setConfig(res.data))
-      .catch(e => console.error("Error al cargar config_sorteo.json"));
+      .catch(e => console.error("Error al cargar sorteo.json"));
   }, []);
 
   // 2. Manejador Global de Teclado
@@ -27,22 +27,19 @@ const TVPage = () => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // Lógica de la tecla 'A' (Toggle de Foco)
+      // Acción Toggle Foco (Tecla 'A')
       if (key === 'a') {
         e.preventDefault();
         const isAnyFocused = document.activeElement.tagName === 'INPUT';
-        
         if (isAnyFocused) {
-          document.activeElement.blur(); // Quita el foco
+          document.activeElement.blur();
         } else {
-          if (inputRefs.current[0]) {
-            inputRefs.current[0].focus(); // Pone el foco en el primer input
-          }
+          if (inputRefs.current[0]) inputRefs.current[0].focus();
         }
         return;
       }
 
-      // Navegación de Premios (Flechas arriba/abajo)
+      // Navegación Premios (Flechas Arriba/Abajo)
       if (key === 'arrowdown') {
         e.preventDefault();
         if (currentIndex < plan.length - 1) {
@@ -62,9 +59,9 @@ const TVPage = () => {
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [currentIndex, plan]); // Se actualiza cuando cambia el índice o el plan
+  }, [currentIndex, plan]);
 
-  // 3. Foco inicial automático
+  // 3. Foco inicial automático al cambiar premio
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, [currentIndex, plan]);
@@ -89,7 +86,6 @@ const TVPage = () => {
   };
 
   const handleInputKeyDown = (e, index) => {
-    // Navegación lateral entre inputs (solo funciona cuando hay foco)
     if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1].focus();
     if (e.key === 'ArrowRight' && index < numInputs - 1) inputRefs.current[index + 1].focus();
   };
@@ -106,7 +102,7 @@ const TVPage = () => {
       </header>
 
       <div className="prize-info">
-        <div className="prize-label">   </div>
+        <div className="prize-label"> </div>
         <div className="prize-title">{currentPrize.titulo}</div>
         <div className="prize-value">{currentPrize.valor}</div>
       </div>

@@ -35,7 +35,7 @@ body, html {
 
 .coin-img {
   width: 100px;
-  animation: spin 6s infinite linear; /* Rotación restaurada */
+  animation: spin 6s infinite linear;
 }
 
 @keyframes spin {
@@ -54,7 +54,7 @@ body, html {
 }
 
 .prize-label {
-  font-size: 2.5rem; /* Tamaño semejante al título */
+  font-size: 2.5rem;
   font-weight: bold;
   color: #ffffff;
   text-transform: uppercase;
@@ -85,12 +85,13 @@ body, html {
 }
 
 .balota-input {
-  width: 175px; /* Tamaño aumentado */
+  width: 175px; 
   height: 175px;
   border-radius: 50% !important;
   border: none;
   background: var(--balota-bg);
-  font-size: 5.5rem;
+  /* Tamaño unificado a 4.5rem para todos los dígitos */
+  font-size: 4.5rem; 
   font-weight: bold;
   text-align: center;
   color: #000;
@@ -100,11 +101,11 @@ body, html {
 }
 
 .serie-spacer {
-  width: 60px; /* Distancia entre los 4 primeros y los 2 últimos */
+  width: 60px; 
 }
 
+/* Espaciado para el 5to input (índice 4) que recibe 2 dígitos */
 .input-doble {
-  font-size: 4.5rem !important; /* Ajuste para 2 dígitos en el 5to input */
   letter-spacing: -3px;
 }
 
