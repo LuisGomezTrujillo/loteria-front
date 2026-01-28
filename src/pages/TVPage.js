@@ -11,13 +11,60 @@ const TVPage = () => {
   
   const inputRefs = useRef([]);
 
-  // Cargar configuraciones locales
+  // 1. Carga de datos iniciales
   useEffect(() => {
-    axios.get('./plan.json').then(res => setPlan(res.data)).catch(e => console.error("Error al cargar plan.json"));
-    axios.get('./config_sorteo.json').then(res => setConfig(res.data)).catch(e => console.error("Error al cargar config_sorteo.json"));
+    axios.get('./plan.json')
+      .then(res => setPlan(res.data))
+      .catch(e => console.error("Error al cargar plan.json"));
+
+    axios.get('./sorteo.json')
+      .then(res => setConfig(res.data))
+      .catch(e => console.error("Error al cargar config_sorteo.json"));
   }, []);
 
-  // Foco automático al cambiar de premio
+  // 2. Manejador Global de Teclado
+  useEffect(() => {
+    const handleGlobalKeyDown = (e) => {
+      const key = e.key.toLowerCase();
+
+      // Lógica de la tecla 'A' (Toggle de Foco)
+      if (key === 'a') {
+        e.preventDefault();
+        const isAnyFocused = document.activeElement.tagName === 'INPUT';
+        
+        if (isAnyFocused) {
+          document.activeElement.blur(); // Quita el foco
+        } else {
+          if (inputRefs.current[0]) {
+            inputRefs.current[0].focus(); // Pone el foco en el primer input
+          }
+        }
+        return;
+      }
+
+      // Navegación de Premios (Flechas arriba/abajo)
+      if (key === 'arrowdown') {
+        e.preventDefault();
+        if (currentIndex < plan.length - 1) {
+          setCurrentIndex(prev => prev + 1);
+          setInputValues(Array(6).fill(""));
+        }
+      }
+
+      if (key === 'arrowup') {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          setCurrentIndex(prev => prev - 1);
+          setInputValues(Array(6).fill(""));
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [currentIndex, plan]); // Se actualiza cuando cambia el índice o el plan
+
+  // 3. Foco inicial automático
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, [currentIndex, plan]);
@@ -27,7 +74,7 @@ const TVPage = () => {
 
   const handleChange = (e, index) => {
     const val = e.target.value;
-    const isDouble = index === 4; // Quinto input (índice 4)
+    const isDouble = index === 4; 
     const maxLength = isDouble ? 2 : 1;
 
     if (/^\d*$/.test(val) && val.length <= maxLength) {
@@ -41,35 +88,10 @@ const TVPage = () => {
     }
   };
 
-  const handleKeyDown = (e, index) => {
+  const handleInputKeyDown = (e, index) => {
+    // Navegación lateral entre inputs (solo funciona cuando hay foco)
     if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1].focus();
     if (e.key === 'ArrowRight' && index < numInputs - 1) inputRefs.current[index + 1].focus();
-    
-    // AVANZAR con Flecha Abajo
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      avanzarSiguiente();
-    }
-
-    // REGRESAR con Flecha Arriba
-    if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      regresarAnterior();
-    }
-  };
-
-  const avanzarSiguiente = () => {
-    if (currentIndex < plan.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      setInputValues(Array(6).fill(""));
-    }
-  };
-
-  const regresarAnterior = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
-      setInputValues(Array(6).fill("")); // Limpiar inputs al regresar
-    }
   };
 
   if (plan.length === 0) return <div className="tv-container">Cargando Sorteo...</div>;
@@ -84,7 +106,7 @@ const TVPage = () => {
       </header>
 
       <div className="prize-info">
-        {/* <div className="prize-label">PREMIO</div> */}
+        <div className="prize-label">   </div>
         <div className="prize-title">{currentPrize.titulo}</div>
         <div className="prize-value">{currentPrize.valor}</div>
       </div>
@@ -92,7 +114,6 @@ const TVPage = () => {
       <div className="inputs-container">
         {inputValues.slice(0, numInputs).map((val, index) => (
           <React.Fragment key={index}>
-            {/* Separador de 60px antes del 5to input si hay 6 en total */}
             {numInputs === 6 && index === 4 && <div className="serie-spacer" />}
             
             <input
@@ -102,7 +123,7 @@ const TVPage = () => {
               className={`balota-input ${index === 4 ? 'input-doble' : ''}`}
               value={val}
               onChange={(e) => handleChange(e, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
+              onKeyDown={(e) => handleInputKeyDown(e, index)}
               autoComplete="off"
             />
           </React.Fragment>
@@ -113,7 +134,7 @@ const TVPage = () => {
         <div style={{ color: 'var(--color-oro-brillo)', fontSize: '3rem', fontWeight: '900' }}>
           SORTEO No. {config.numero_sorteo}
         </div>
-        <div style={{ color: 'white', fontSize: '2rem', opacity: 0.9 }}>
+        <div style={{ color: 'white', fontSize: '2.5rem', opacity: 0.9 }}>
           {config.fecha}
         </div>
       </div>
