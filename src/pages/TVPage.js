@@ -8,31 +8,20 @@ const TVPage = () => {
   const [config, setConfig] = useState({ numero_sorteo: '---', fecha: '---' });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [inputValues, setInputValues] = useState(Array(6).fill(""));
-  const [isSaved, setIsSaved] = useState(false);
-  const [showCheck, setShowCheck] = useState(false);
   
   const inputRefs = useRef([]);
 
-  const API_URL = window.location.hostname === 'localhost' 
-    ? "http://localhost:8000/resultados/" 
-    : "https://tu-backend-loteria.onrender.com/resultados/";
-
+  // Cargar configuraciones locales
   useEffect(() => {
-    axios.get('./plan.json')
-      .then(res => setPlan(res.data))
-      .catch(e => console.error("Falta plan.json"));
-
-    axios.get('./config_sorteo.json')
-      .then(res => setConfig(res.data))
-      .catch(e => console.error("Falta config_sorteo.json"));
+    axios.get('./plan.json').then(res => setPlan(res.data)).catch(e => console.error("Error al cargar plan.json"));
+    axios.get('./config_sorteo.json').then(res => setConfig(res.data)).catch(e => console.error("Error al cargar config_sorteo.json"));
   }, []);
 
+  // Foco automático al cambiar de premio
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
-    setIsSaved(false);
   }, [currentIndex, plan]);
 
-  // Obtener cuántos inputs mostrar para el premio actual (4 o 6)
   const currentPrize = plan[currentIndex];
   const numInputs = currentPrize ? parseInt(currentPrize.inputs) : 6;
 
@@ -46,50 +35,26 @@ const TVPage = () => {
       newValues[index] = val;
       setInputValues(newValues);
       
-      // Auto-foco al siguiente si completó el actual
       if (val.length === maxLength && index < numInputs - 1) {
         inputRefs.current[index + 1].focus();
       }
     }
   };
 
-  const handleKeyDown = async (e, index) => {
+  const handleKeyDown = (e, index) => {
     if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1].focus();
     if (e.key === 'ArrowRight' && index < numInputs - 1) inputRefs.current[index + 1].focus();
     
-    if (e.key.toLowerCase() === 's') {
-      e.preventDefault();
-      await guardarResultado();
-    }
-    
+    // AVANZAR con Flecha Abajo
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       avanzarSiguiente();
     }
-  };
 
-  const guardarResultado = async () => {
-    const validInputs = inputValues.slice(0, numInputs);
-    const resultadoString = validInputs.join("");
-    
-    // Validar que se hayan llenado los campos mínimos
-    if (resultadoString.length < numInputs) return;
-
-    const body = {
-      numero_sorteo: config.numero_sorteo,
-      fecha_sorteo: config.fecha,
-      titulo_premio: currentPrize.titulo,
-      resultado_concatenado: resultadoString,
-      inputs_usados: numInputs
-    };
-
-    try {
-      await axios.post(API_URL, body);
-      setIsSaved(true);
-      setShowCheck(true);
-      setTimeout(() => setShowCheck(false), 2000);
-    } catch (error) {
-      alert("Error al conectar con el servidor local");
+    // REGRESAR con Flecha Arriba
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      regresarAnterior();
     }
   };
 
@@ -97,22 +62,20 @@ const TVPage = () => {
     if (currentIndex < plan.length - 1) {
       setCurrentIndex(prev => prev + 1);
       setInputValues(Array(6).fill(""));
-      setIsSaved(false);
-    } else {
-      alert("Sorteo Finalizado");
     }
   };
 
-  if (plan.length === 0) return <div className="tv-container">Cargando...</div>;
+  const regresarAnterior = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
+      setInputValues(Array(6).fill("")); // Limpiar inputs al regresar
+    }
+  };
+
+  if (plan.length === 0) return <div className="tv-container">Cargando Sorteo...</div>;
 
   return (
     <div className="tv-container">
-      {showCheck && (
-        <div className="check-overlay">
-          <div className="check-circle">✓</div>
-        </div>
-      )}
-
       <header className="header-container">
         <div className="logo-wrapper">
           <img src={logoMoneda} className="coin-img" alt="Logo" />
@@ -121,7 +84,7 @@ const TVPage = () => {
       </header>
 
       <div className="prize-info">
-        <div className="prize-label">PREMIO</div>
+        {/* <div className="prize-label">PREMIO</div> */}
         <div className="prize-title">{currentPrize.titulo}</div>
         <div className="prize-value">{currentPrize.valor}</div>
       </div>
@@ -129,16 +92,14 @@ const TVPage = () => {
       <div className="inputs-container">
         {inputValues.slice(0, numInputs).map((val, index) => (
           <React.Fragment key={index}>
-            {/* Si hay 6 inputs, añadir el espacio extra antes del quinto (serie) */}
+            {/* Separador de 60px antes del 5to input si hay 6 en total */}
             {numInputs === 6 && index === 4 && <div className="serie-spacer" />}
             
             <input
               ref={el => inputRefs.current[index] = el}
               type="text"
               inputMode="numeric"
-              className={`balota-input 
-                ${isSaved ? 'saved-style' : ''} 
-                ${index === 4 ? 'input-doble' : ''}`}
+              className={`balota-input ${index === 4 ? 'input-doble' : ''}`}
               value={val}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
@@ -149,10 +110,10 @@ const TVPage = () => {
       </div>
 
       <div className="sorteo-footer-info">
-        <div style={{ color: 'var(--color-oro-brillo)', fontSize: '2rem', fontWeight: '900' }}>
+        <div style={{ color: 'var(--color-oro-brillo)', fontSize: '3rem', fontWeight: '900' }}>
           SORTEO No. {config.numero_sorteo}
         </div>
-        <div style={{ color: 'white', fontSize: '1.5rem', opacity: 0.9 }}>
+        <div style={{ color: 'white', fontSize: '2rem', opacity: 0.9 }}>
           {config.fecha}
         </div>
       </div>

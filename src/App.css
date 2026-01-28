@@ -14,37 +14,37 @@ body, html {
   background: radial-gradient(circle at center, #1b3b80 0%, var(--color-fondo) 100%);
   font-family: 'Helvetica', 'Arial', sans-serif;
   color: white;
-  overflow: hidden; /* Evita scroll */
+  overflow: hidden;
 }
 
 .tv-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Alinea al inicio para reducir espacio superior */
+  justify-content: flex-start;
   height: 100vh;
   width: 100vw;
   text-align: center;
-  padding-top: 10px; /* Espacio mínimo superior */
+  padding-top: 10px;
 }
 
+/* --- Logo con Animación de Rotación --- */
 .header-container {
-  margin-bottom: 5px; /* Reducido al mínimo */
-}
-
-.logo-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  margin-bottom: 5px;
 }
 
 .coin-img {
-  width: 70px; /* Ligeramente más pequeño */
-  animation: spin 6s infinite linear;
+  width: 100px;
+  animation: spin 6s infinite linear; /* Rotación restaurada */
+}
+
+@keyframes spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
 }
 
 .text-img {
-  height: 80px; /* Ligeramente más pequeño */
+  height: 100px;
   margin-left: 15px;
 }
 
@@ -54,16 +54,15 @@ body, html {
 }
 
 .prize-label {
-  font-size: 2.5rem; /* Tamaño similar al título */
+  font-size: 2.5rem; /* Tamaño semejante al título */
   font-weight: bold;
   color: #ffffff;
   text-transform: uppercase;
   margin-bottom: 0px;
-  text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
 }
 
 .prize-title {
-  font-size: 3.5rem; /* Aumentado */
+  font-size: 3.5rem;
   font-weight: 900;
   color: var(--color-oro-brillo);
   margin: 0px;
@@ -71,20 +70,18 @@ body, html {
 }
 
 .prize-value {
-  font-size: 4rem; /* Protagonismo al valor */
+  font-size: 4rem;
   font-weight: 900;
   margin-top: -5px;
   margin-bottom: 10px;
-  text-shadow: 3px 3px 12px #000;
 }
 
-/* --- Contenedor de Balotas --- */
+/* --- Contenedor de Balotas Gigantes --- */
 .inputs-container {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 15px;
-  width: 95%;
 }
 
 .balota-input {
@@ -93,7 +90,7 @@ body, html {
   border-radius: 50% !important;
   border: none;
   background: var(--balota-bg);
-  font-size: 5.5rem; /* Números muy grandes */
+  font-size: 5.5rem;
   font-weight: bold;
   text-align: center;
   color: #000;
@@ -102,14 +99,12 @@ body, html {
   caret-color: transparent;
 }
 
-/* Espaciador entre número y serie */
 .serie-spacer {
-  width: 60px; /* Espacio extra entre los 4 primeros y los 2 últimos */
+  width: 60px; /* Distancia entre los 4 primeros y los 2 últimos */
 }
 
-/* Ajuste para el quinto input (índice 4) que recibe 2 dígitos */
 .input-doble {
-  font-size: 4.5rem !important; /* Un poco más pequeño para que quepan 2 cifras */
+  font-size: 4.5rem !important; /* Ajuste para 2 dígitos en el 5to input */
   letter-spacing: -3px;
 }
 
@@ -119,40 +114,7 @@ body, html {
   border: 5px solid var(--color-oro);
 }
 
-/* --- Footer --- */
 .sorteo-footer-info {
-  margin-top: auto; /* Empuja el footer al final */
+  margin-top: auto;
   margin-bottom: 20px;
-}
-
-.check-overlay {
-  position: fixed;
-  top: 0; left: 0; width: 100vw; height: 100vh;
-  z-index: 2000;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.check-circle {
-  width: 250px; height: 250px;
-  background: #28a745;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 150px;
-  color: white;
-  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes popIn {
-  0% { transform: scale(0); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-.balota-input.saved-style {
-  border: 8px solid #28a745 !important;
-  box-shadow: 0 0 40px rgba(40, 167, 69, 0.6) !important;
 }
