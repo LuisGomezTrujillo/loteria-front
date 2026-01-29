@@ -27,8 +27,9 @@ const TVPage = () => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // TOGGLE FOCUS con la tecla 'Q'
-      if (key === 'q') {
+      // --- CAMBIO AQUÍ ---
+      // TOGGLE FOCUS con 'Enter' O con 'Q' (para compatibilidad Smart TV)
+      if (key === 'enter' || key === 'q') {
         e.preventDefault();
         setIsFocusEnabled(prev => !prev);
         return;
@@ -51,18 +52,14 @@ const TVPage = () => {
         return;
       }
 
-      // Navegación lateral (A y D) solo si el foco está permitido
+      // Si el evento viene de un INPUT, lo ignoramos aquí para evitar conflictos
+      if (e.target.tagName === 'INPUT') return;
+
+      // Navegación lateral Global (Solo si no hay foco activo y se presiona A o D)
       if (isFocusEnabled) {
-        if (key === 'a') {
-          const activeIdx = inputRefs.current.indexOf(document.activeElement);
-          if (activeIdx > 0) inputRefs.current[activeIdx - 1].focus();
-          else inputRefs.current[0].focus();
-        }
-        if (key === 'd') {
-          const activeIdx = inputRefs.current.indexOf(document.activeElement);
-          const max = (plan[currentIndex] ? parseInt(plan[currentIndex].inputs) : 6) - 1;
-          if (activeIdx >= 0 && activeIdx < max) inputRefs.current[activeIdx + 1].focus();
-          else inputRefs.current[0].focus();
+        if (key === 'a' || key === 'd') {
+          // Recuperar foco en el primer input si se perdió
+          if (inputRefs.current[0]) inputRefs.current[0].focus();
         }
       }
     };
@@ -71,7 +68,7 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan, isFocusEnabled]);
 
-  // Efecto para aplicar el foco/blur real basado en el estado isFocusEnabled
+  // Efecto para aplicar el foco/blur real cuando cambia isFocusEnabled
   useEffect(() => {
     if (isFocusEnabled) {
       if (inputRefs.current[0]) inputRefs.current[0].focus();
@@ -101,11 +98,21 @@ const TVPage = () => {
 
   const handleInputKeyDown = (e, index) => {
     const key = e.key.toLowerCase();
-    if ((key === 'arrowleft' || key === 'a') && index > 0) {
-      inputRefs.current[index - 1].focus();
+    
+    // Navegación Izquierda (A o Flecha Izquierda)
+    if (key === 'arrowleft' || key === 'a') {
+      e.preventDefault(); 
+      if (index > 0) {
+        inputRefs.current[index - 1].focus();
+      }
     }
-    if ((key === 'arrowright' || key === 'd') && index < numInputs - 1) {
-      inputRefs.current[index + 1].focus();
+
+    // Navegación Derecha (D o Flecha Derecha)
+    if (key === 'arrowright' || key === 'd') {
+      e.preventDefault(); 
+      if (index < numInputs - 1) {
+        inputRefs.current[index + 1].focus();
+      }
     }
   };
 
@@ -139,7 +146,7 @@ const TVPage = () => {
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleInputKeyDown(e, index)}
               autoComplete="off"
-              // Usamos readOnly en lugar de disabled para evitar que el navegador cambie el color del texto
+              // Usamos readOnly para bloquear visualmente sin deshabilitar eventos del todo
               readOnly={!isFocusEnabled}
             />
           </React.Fragment>
