@@ -75,7 +75,7 @@ body, html {
   border-radius: 50% !important;
   border: none;
   background: var(--balota-bg);
-  font-size: 4.5rem; /* Tamaño unificado solicitado */
+  font-size: 4.5rem; /* Unificado */
   font-weight: bold;
   text-align: center;
   color: #000;
@@ -89,7 +89,7 @@ body, html {
 }
 
 .input-doble {
-  letter-spacing: -3px; /* Espaciado para el 5to input de 2 dígitos */
+  letter-spacing: -3px;
 }
 
 .balota-input:focus {
