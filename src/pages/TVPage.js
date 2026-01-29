@@ -22,19 +22,15 @@ const TVPage = () => {
       .catch(e => console.error("Error al cargar sorteo.json"));
   }, []);
 
-  // 2. Manejador Global de Teclado (Compatible con WASD y Flechas)
+  // 2. Manejador Global de Teclado (WASD + Flechas + Enter)
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // Acción Toggle Foco (Tecla 'A')
-      if (key === 'a') {
-        const isAnyFocused = document.activeElement.tagName === 'INPUT';
-        if (isAnyFocused) {
-          document.activeElement.blur();
-        } else {
-          if (inputRefs.current[0]) inputRefs.current[0].focus();
-        }
+      // Forzar Foco al primer input (Tecla 'Enter')
+      if (key === 'enter') {
+        e.preventDefault();
+        if (inputRefs.current[0]) inputRefs.current[0].focus();
         return;
       }
 
@@ -44,6 +40,7 @@ const TVPage = () => {
           setCurrentIndex(prev => prev + 1);
           setInputValues(Array(6).fill(""));
         }
+        return;
       }
 
       // Navegación Premios Anterior (Flecha Arriba o Tecla 'W')
@@ -52,6 +49,21 @@ const TVPage = () => {
           setCurrentIndex(prev => prev - 1);
           setInputValues(Array(6).fill(""));
         }
+        return;
+      }
+
+      // Los controles laterales (A y D) se manejan de forma global solo si no hay un input enfocado
+      // para permitir que se sigan escribiendo números normalmente.
+      const isAnyFocused = document.activeElement.tagName === 'INPUT';
+      
+      if (!isAnyFocused) {
+        if (key === 'a') { // Izquierda
+          if (inputRefs.current[0]) inputRefs.current[0].focus();
+        }
+        if (key === 'd') { // Derecha
+          const currentNumInputs = plan[currentIndex] ? parseInt(plan[currentIndex].inputs) : 6;
+          if (inputRefs.current[currentNumInputs - 1]) inputRefs.current[currentNumInputs - 1].focus();
+        }
       }
     };
 
@@ -59,7 +71,7 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan]);
 
-  // 3. Foco inicial automático
+  // 3. Foco inicial automático al cambiar de premio
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, [currentIndex, plan]);
@@ -84,9 +96,15 @@ const TVPage = () => {
   };
 
   const handleInputKeyDown = (e, index) => {
-    // Navegación lateral entre balotas con Flechas o Tabulador
-    if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1].focus();
-    if (e.key === 'ArrowRight' && index < numInputs - 1) inputRefs.current[index + 1].focus();
+    const key = e.key.toLowerCase();
+    
+    // Navegación lateral entre balotas con Flechas o WASD (A y D)
+    if ((key === 'arrowleft' || key === 'a') && index > 0) {
+      inputRefs.current[index - 1].focus();
+    }
+    if ((key === 'arrowright' || key === 'd') && index < numInputs - 1) {
+      inputRefs.current[index + 1].focus();
+    }
   };
 
   if (plan.length === 0) return <div className="tv-container">Cargando Sorteo...</div>;
