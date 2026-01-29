@@ -8,11 +8,10 @@ const TVPage = () => {
   const [config, setConfig] = useState({ numero_sorteo: '---', fecha: '---' });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [inputValues, setInputValues] = useState(Array(6).fill(""));
-  const [isFocusEnabled, setIsFocusEnabled] = useState(true); // Estado maestro del foco
+  const [isFocusEnabled, setIsFocusEnabled] = useState(true); 
   
   const inputRefs = useRef([]);
 
-  // 1. Carga de datos iniciales
   useEffect(() => {
     axios.get('./plan.json')
       .then(res => setPlan(res.data))
@@ -23,15 +22,14 @@ const TVPage = () => {
       .catch(e => console.error("Error al cargar sorteo.json"));
   }, []);
 
-  // 2. Manejador Global de Teclado (WASD + Enter Toggle)
+  // Manejador Global de Teclado
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // Acción Toggle Foco con ENTER (Alternar estado maestro)
-      if (key === 'enter') {
+      // TOGGLE FOCUS con la tecla 'Q'
+      if (key === 'q') {
         e.preventDefault();
-        e.stopPropagation();
         setIsFocusEnabled(prev => !prev);
         return;
       }
@@ -53,25 +51,18 @@ const TVPage = () => {
         return;
       }
 
-      // Navegación lateral global (A y D) solo si el foco está habilitado
+      // Navegación lateral (A y D) solo si el foco está permitido
       if (isFocusEnabled) {
         if (key === 'a') {
-          // Intentar ir a la izquierda si ya hay foco, o activar el primero
           const activeIdx = inputRefs.current.indexOf(document.activeElement);
-          if (activeIdx > 0) {
-            inputRefs.current[activeIdx - 1].focus();
-          } else {
-            inputRefs.current[0].focus();
-          }
+          if (activeIdx > 0) inputRefs.current[activeIdx - 1].focus();
+          else inputRefs.current[0].focus();
         }
         if (key === 'd') {
           const activeIdx = inputRefs.current.indexOf(document.activeElement);
           const max = (plan[currentIndex] ? parseInt(plan[currentIndex].inputs) : 6) - 1;
-          if (activeIdx >= 0 && activeIdx < max) {
-            inputRefs.current[activeIdx + 1].focus();
-          } else {
-            inputRefs.current[0].focus();
-          }
+          if (activeIdx >= 0 && activeIdx < max) inputRefs.current[activeIdx + 1].focus();
+          else inputRefs.current[0].focus();
         }
       }
     };
@@ -80,14 +71,14 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan, isFocusEnabled]);
 
-  // 3. Control de Foco Reactivo
+  // Efecto para aplicar el foco/blur real basado en el estado isFocusEnabled
   useEffect(() => {
     if (isFocusEnabled) {
       if (inputRefs.current[0]) inputRefs.current[0].focus();
     } else {
       if (document.activeElement) document.activeElement.blur();
     }
-  }, [isFocusEnabled, currentIndex, plan]);
+  }, [isFocusEnabled, currentIndex]);
 
   const currentPrize = plan[currentIndex];
   const numInputs = currentPrize ? parseInt(currentPrize.inputs) : 6;
@@ -148,7 +139,8 @@ const TVPage = () => {
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleInputKeyDown(e, index)}
               autoComplete="off"
-              disabled={!isFocusEnabled} /* Evita que el TV lo force */
+              // Usamos readOnly en lugar de disabled para evitar que el navegador cambie el color del texto
+              readOnly={!isFocusEnabled}
             />
           </React.Fragment>
         ))}
