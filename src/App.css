@@ -34,7 +34,7 @@ body, html {
 
 .coin-img {
   width: 100px;
-  animation: spin 6s infinite linear;
+  animation: spin 6s infinite linear; /* Rotación restaurada eje Y */
 }
 
 @keyframes spin {
@@ -75,7 +75,7 @@ body, html {
   border-radius: 50% !important;
   border: none;
   background: var(--balota-bg);
-  font-size: 4.5rem; /* Unificado */
+  font-size: 4.5rem; /* Unificado para 1 y 2 dígitos */
   font-weight: bold;
   text-align: center;
   color: #000;
@@ -96,6 +96,13 @@ body, html {
   transform: scale(1.05);
   box-shadow: 0 0 50px var(--color-oro);
   border: 5px solid var(--color-oro);
+}
+
+/* Estado deshabilitado para cuando se quita el foco visualmente */
+.balota-input:disabled {
+  opacity: 1;
+  color: #000;
+  cursor: default;
 }
 
 .sorteo-footer-info {
