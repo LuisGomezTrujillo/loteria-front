@@ -22,20 +22,16 @@ const TVPage = () => {
       .catch(e => console.error("Error al cargar sorteo.json"));
   }, []);
 
-  // Manejador Global de Teclado
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // --- CAMBIO AQUÍ ---
-      // TOGGLE FOCUS con 'Enter' O con 'Q' (para compatibilidad Smart TV)
       if (key === 'enter' || key === 'q') {
         e.preventDefault();
         setIsFocusEnabled(prev => !prev);
         return;
       }
 
-      // Navegación de Premios: W (Arriba) y S (Abajo)
       if (key === 'arrowdown' || key === 's') {
         if (currentIndex < plan.length - 1) {
           setCurrentIndex(prev => prev + 1);
@@ -52,13 +48,10 @@ const TVPage = () => {
         return;
       }
 
-      // Si el evento viene de un INPUT, lo ignoramos aquí para evitar conflictos
       if (e.target.tagName === 'INPUT') return;
 
-      // Navegación lateral Global (Solo si no hay foco activo y se presiona A o D)
       if (isFocusEnabled) {
         if (key === 'a' || key === 'd') {
-          // Recuperar foco en el primer input si se perdió
           if (inputRefs.current[0]) inputRefs.current[0].focus();
         }
       }
@@ -68,7 +61,6 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan, isFocusEnabled]);
 
-  // Efecto para aplicar el foco/blur real cuando cambia isFocusEnabled
   useEffect(() => {
     if (isFocusEnabled) {
       if (inputRefs.current[0]) inputRefs.current[0].focus();
@@ -98,21 +90,13 @@ const TVPage = () => {
 
   const handleInputKeyDown = (e, index) => {
     const key = e.key.toLowerCase();
-    
-    // Navegación Izquierda (A o Flecha Izquierda)
     if (key === 'arrowleft' || key === 'a') {
       e.preventDefault(); 
-      if (index > 0) {
-        inputRefs.current[index - 1].focus();
-      }
+      if (index > 0) inputRefs.current[index - 1].focus();
     }
-
-    // Navegación Derecha (D o Flecha Derecha)
     if (key === 'arrowright' || key === 'd') {
       e.preventDefault(); 
-      if (index < numInputs - 1) {
-        inputRefs.current[index + 1].focus();
-      }
+      if (index < numInputs - 1) inputRefs.current[index + 1].focus();
     }
   };
 
@@ -120,47 +104,47 @@ const TVPage = () => {
 
   return (
     <div className="tv-container">
-      <header className="header-container">
-        <div className="logo-wrapper">
-          <img src={logoMoneda} className="coin-img" alt="Logo" />
-          <img src={textoLogo} className="text-img" alt="Lotería" />
+      {/* HEADER: LOGO IZQUIERDA | SORTEO DERECHA */}
+      <header className="main-header">
+        <div className="header-column left">
+          <img src={logoMoneda} className="coin-img-large" alt="Logo" />
+          <img src={textoLogo} className="text-img-large" alt="Lotería" />
+        </div>
+        <div className="header-column right">
+          <div className="sorteo-info-header">
+            <span className="sorteo-label">SORTEO No.</span>
+            <span className="sorteo-number">{config.numero_sorteo}</span>
+            <div className="sorteo-date">{config.fecha}</div>
+          </div>
         </div>
       </header>
 
-      <div className="prize-info">
-        <div className="prize-label"> </div>
-        <div className="prize-title">{currentPrize.titulo}</div>
-        <div className="prize-value">{currentPrize.valor}</div>
-      </div>
-
-      <div className="inputs-container">
-        {inputValues.slice(0, numInputs).map((val, index) => (
-          <React.Fragment key={index}>
-            {numInputs === 6 && index === 4 && <div className="serie-spacer" />}
-            <input
-              ref={el => inputRefs.current[index] = el}
-              type="text"
-              inputMode="numeric"
-              className={`balota-input ${index === 4 ? 'input-doble' : ''}`}
-              value={val}
-              onChange={(e) => handleChange(e, index)}
-              onKeyDown={(e) => handleInputKeyDown(e, index)}
-              autoComplete="off"
-              // Usamos readOnly para bloquear visualmente sin deshabilitar eventos del todo
-              readOnly={!isFocusEnabled}
-            />
-          </React.Fragment>
-        ))}
-      </div>
-
-      <div className="sorteo-footer-info">
-        <div style={{ color: 'var(--color-oro-brillo)', fontSize: '3rem', fontWeight: '900' }}>
-          SORTEO No. {config.numero_sorteo}
+      {/* CUERPO CENTRAL: PREMIO E INPUTS CENTRADOS */}
+      <main className="content-area">
+        <div className="prize-info">
+          <div className="prize-title">{currentPrize.titulo}</div>
+          <div className="prize-value">{currentPrize.valor}</div>
         </div>
-        <div style={{ color: 'white', fontSize: '2.5rem', opacity: 0.9 }}>
-          {config.fecha}
+
+        <div className="inputs-container">
+          {inputValues.slice(0, numInputs).map((val, index) => (
+            <React.Fragment key={index}>
+              {numInputs === 6 && index === 4 && <div className="serie-spacer-large" />}
+              <input
+                ref={el => inputRefs.current[index] = el}
+                type="text"
+                inputMode="numeric"
+                className={`balota-input-giant ${index === 4 ? 'input-doble' : ''}`}
+                value={val}
+                onChange={(e) => handleChange(e, index)}
+                onKeyDown={(e) => handleInputKeyDown(e, index)}
+                autoComplete="off"
+                readOnly={!isFocusEnabled}
+              />
+            </React.Fragment>
+          ))}
         </div>
-      </div>
+      </main>
     </div>
   );
 };
