@@ -28,7 +28,6 @@ body, html {
   padding-top: 10px;
 }
 
-/* --- Logo con Animación de Rotación --- */
 .header-container {
   margin-bottom: 35px;
 }
@@ -48,19 +47,6 @@ body, html {
   margin-left: 15px;
 }
 
-/* --- Estilos de Premio --- */
-.prize-info {
-  margin-bottom: 15px;
-}
-
-.prize-label {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #ffffff;
-  text-transform: uppercase;
-  margin-bottom: 0px;
-}
-
 .prize-title {
   font-size: 3.5rem;
   font-weight: 900;
@@ -76,7 +62,6 @@ body, html {
   margin-bottom: 10px;
 }
 
-/* --- Contenedor de Balotas Gigantes --- */
 .inputs-container {
   display: flex;
   justify-content: center;
@@ -90,8 +75,7 @@ body, html {
   border-radius: 50% !important;
   border: none;
   background: var(--balota-bg);
-  /* Tamaño unificado a 4.5rem para todos los dígitos */
-  font-size: 4.5rem; 
+  font-size: 4.5rem; /* Tamaño unificado solicitado */
   font-weight: bold;
   text-align: center;
   color: #000;
@@ -104,9 +88,8 @@ body, html {
   width: 60px; 
 }
 
-/* Espaciado para el 5to input (índice 4) que recibe 2 dígitos */
 .input-doble {
-  letter-spacing: -3px;
+  letter-spacing: -3px; /* Espaciado para el 5to input de 2 dígitos */
 }
 
 .balota-input:focus {
