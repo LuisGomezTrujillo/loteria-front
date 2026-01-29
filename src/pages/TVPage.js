@@ -8,6 +8,7 @@ const TVPage = () => {
   const [config, setConfig] = useState({ numero_sorteo: '---', fecha: '---' });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [inputValues, setInputValues] = useState(Array(6).fill(""));
+  const [isFocusEnabled, setIsFocusEnabled] = useState(true); // Estado maestro del foco
   
   const inputRefs = useRef([]);
 
@@ -27,18 +28,11 @@ const TVPage = () => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // Acción Toggle Foco con ENTER
+      // Acción Toggle Foco con ENTER (Alternar estado maestro)
       if (key === 'enter') {
         e.preventDefault();
-        const isAnyFocused = document.activeElement.tagName === 'INPUT';
-        
-        if (isAnyFocused) {
-          document.activeElement.blur(); // Quita el foco si hay uno activo
-        } else {
-          if (inputRefs.current[0]) {
-            inputRefs.current[0].focus(); // Pone el foco en el extremo izquierdo
-          }
-        }
+        e.stopPropagation();
+        setIsFocusEnabled(prev => !prev);
         return;
       }
 
@@ -59,16 +53,24 @@ const TVPage = () => {
         return;
       }
 
-      // Navegación lateral global (A y D) cuando no hay foco
-      const isAnyFocused = document.activeElement.tagName === 'INPUT';
-      if (!isAnyFocused) {
-        if (key === 'a' && inputRefs.current[0]) {
-          inputRefs.current[0].focus();
+      // Navegación lateral global (A y D) solo si el foco está habilitado
+      if (isFocusEnabled) {
+        if (key === 'a') {
+          // Intentar ir a la izquierda si ya hay foco, o activar el primero
+          const activeIdx = inputRefs.current.indexOf(document.activeElement);
+          if (activeIdx > 0) {
+            inputRefs.current[activeIdx - 1].focus();
+          } else {
+            inputRefs.current[0].focus();
+          }
         }
         if (key === 'd') {
-          const currentNumInputs = plan[currentIndex] ? parseInt(plan[currentIndex].inputs) : 6;
-          if (inputRefs.current[currentNumInputs - 1]) {
-            inputRefs.current[currentNumInputs - 1].focus();
+          const activeIdx = inputRefs.current.indexOf(document.activeElement);
+          const max = (plan[currentIndex] ? parseInt(plan[currentIndex].inputs) : 6) - 1;
+          if (activeIdx >= 0 && activeIdx < max) {
+            inputRefs.current[activeIdx + 1].focus();
+          } else {
+            inputRefs.current[0].focus();
           }
         }
       }
@@ -76,12 +78,16 @@ const TVPage = () => {
 
     window.addEventListener('keydown', handleGlobalKeyDown);
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
-  }, [currentIndex, plan]);
+  }, [currentIndex, plan, isFocusEnabled]);
 
-  // 3. Foco inicial automático al cargar o cambiar premio
+  // 3. Control de Foco Reactivo
   useEffect(() => {
-    if (inputRefs.current[0]) inputRefs.current[0].focus();
-  }, [currentIndex, plan]);
+    if (isFocusEnabled) {
+      if (inputRefs.current[0]) inputRefs.current[0].focus();
+    } else {
+      if (document.activeElement) document.activeElement.blur();
+    }
+  }, [isFocusEnabled, currentIndex, plan]);
 
   const currentPrize = plan[currentIndex];
   const numInputs = currentPrize ? parseInt(currentPrize.inputs) : 6;
@@ -104,8 +110,6 @@ const TVPage = () => {
 
   const handleInputKeyDown = (e, index) => {
     const key = e.key.toLowerCase();
-    
-    // Navegación entre balotas (A y D)
     if ((key === 'arrowleft' || key === 'a') && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -144,6 +148,7 @@ const TVPage = () => {
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleInputKeyDown(e, index)}
               autoComplete="off"
+              disabled={!isFocusEnabled} /* Evita que el TV lo force */
             />
           </React.Fragment>
         ))}
