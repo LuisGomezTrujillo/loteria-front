@@ -22,14 +22,13 @@ const TVPage = () => {
       .catch(e => console.error("Error al cargar sorteo.json"));
   }, []);
 
-  // 2. Manejador Global de Teclado
+  // 2. Manejador Global de Teclado (Compatible con WASD y Flechas)
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
       // Acción Toggle Foco (Tecla 'A')
-      if (key === 'q') {
-        e.preventDefault();
+      if (key === 'a') {
         const isAnyFocused = document.activeElement.tagName === 'INPUT';
         if (isAnyFocused) {
           document.activeElement.blur();
@@ -39,17 +38,16 @@ const TVPage = () => {
         return;
       }
 
-      // Navegación Premios (Flechas Arriba/Abajo)
-      if (key === 'arrowdown') {
-        e.preventDefault();
+      // Navegación Premios Siguiente (Flecha Abajo o Tecla 'S')
+      if (key === 'arrowdown' || key === 's') {
         if (currentIndex < plan.length - 1) {
           setCurrentIndex(prev => prev + 1);
           setInputValues(Array(6).fill(""));
         }
       }
 
-      if (key === 'arrowup') {
-        e.preventDefault();
+      // Navegación Premios Anterior (Flecha Arriba o Tecla 'W')
+      if (key === 'arrowup' || key === 'w') {
         if (currentIndex > 0) {
           setCurrentIndex(prev => prev - 1);
           setInputValues(Array(6).fill(""));
@@ -61,7 +59,7 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan]);
 
-  // 3. Foco inicial automático al cambiar premio
+  // 3. Foco inicial automático
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, [currentIndex, plan]);
@@ -86,6 +84,7 @@ const TVPage = () => {
   };
 
   const handleInputKeyDown = (e, index) => {
+    // Navegación lateral entre balotas con Flechas o Tabulador
     if (e.key === 'ArrowLeft' && index > 0) inputRefs.current[index - 1].focus();
     if (e.key === 'ArrowRight' && index < numInputs - 1) inputRefs.current[index + 1].focus();
   };
