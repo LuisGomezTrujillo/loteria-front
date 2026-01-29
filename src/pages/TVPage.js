@@ -22,47 +22,54 @@ const TVPage = () => {
       .catch(e => console.error("Error al cargar sorteo.json"));
   }, []);
 
-  // 2. Manejador Global de Teclado (WASD + Flechas + Enter)
+  // 2. Manejador Global de Teclado (WASD + Enter Toggle)
   useEffect(() => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // Forzar Foco al primer input (Tecla 'Enter')
+      // Acción Toggle Foco con ENTER (Alternar entre quitar foco o ir al primer input)
       if (key === 'enter') {
         e.preventDefault();
-        if (inputRefs.current[0]) inputRefs.current[0].focus();
+        const isAnyFocused = document.activeElement.tagName === 'INPUT';
+        
+        if (isAnyFocused) {
+          document.activeElement.blur(); // Quita el foco si está activo
+        } else {
+          if (inputRefs.current[0]) {
+            inputRefs.current[0].focus(); // Pone foco en el extremo izquierdo si estaba inactivo
+          }
+        }
         return;
       }
 
-      // Navegación Premios Siguiente (Flecha Abajo o Tecla 'S')
+      // Navegación de Premios: W (Arriba) y S (Abajo)
       if (key === 'arrowdown' || key === 's') {
         if (currentIndex < plan.length - 1) {
           setCurrentIndex(prev => prev + 1);
-          setInputValues(Array(6).fill(""));
+          setInputValues(Array(6).fill("")); // Limpia para el nuevo premio
         }
         return;
       }
 
-      // Navegación Premios Anterior (Flecha Arriba o Tecla 'W')
       if (key === 'arrowup' || key === 'w') {
         if (currentIndex > 0) {
           setCurrentIndex(prev => prev - 1);
-          setInputValues(Array(6).fill(""));
+          setInputValues(Array(6).fill("")); // Limpia para el premio anterior
         }
         return;
       }
 
-      // Los controles laterales (A y D) se manejan de forma global solo si no hay un input enfocado
-      // para permitir que se sigan escribiendo números normalmente.
+      // Navegación lateral global (A y D) cuando no se está escribiendo
       const isAnyFocused = document.activeElement.tagName === 'INPUT';
-      
       if (!isAnyFocused) {
-        if (key === 'a') { // Izquierda
-          if (inputRefs.current[0]) inputRefs.current[0].focus();
+        if (key === 'a' && inputRefs.current[0]) {
+          inputRefs.current[0].focus();
         }
-        if (key === 'd') { // Derecha
+        if (key === 'd') {
           const currentNumInputs = plan[currentIndex] ? parseInt(plan[currentIndex].inputs) : 6;
-          if (inputRefs.current[currentNumInputs - 1]) inputRefs.current[currentNumInputs - 1].focus();
+          if (inputRefs.current[currentNumInputs - 1]) {
+            inputRefs.current[currentNumInputs - 1].focus();
+          }
         }
       }
     };
@@ -71,7 +78,7 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan]);
 
-  // 3. Foco inicial automático al cambiar de premio
+  // 3. Foco inicial automático al cargar el componente o cambiar premio
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, [currentIndex, plan]);
@@ -89,6 +96,7 @@ const TVPage = () => {
       newValues[index] = val;
       setInputValues(newValues);
       
+      // Salto automático al siguiente input
       if (val.length === maxLength && index < numInputs - 1) {
         inputRefs.current[index + 1].focus();
       }
@@ -98,7 +106,7 @@ const TVPage = () => {
   const handleInputKeyDown = (e, index) => {
     const key = e.key.toLowerCase();
     
-    // Navegación lateral entre balotas con Flechas o WASD (A y D)
+    // Navegación lateral entre balotas (A y D)
     if ((key === 'arrowleft' || key === 'a') && index > 0) {
       inputRefs.current[index - 1].focus();
     }
