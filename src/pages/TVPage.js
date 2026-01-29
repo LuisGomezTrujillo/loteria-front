@@ -28,7 +28,7 @@ const TVPage = () => {
       const key = e.key.toLowerCase();
 
       // Acción Toggle Foco (Tecla 'A')
-      if (key === 'a') {
+      if (key === 'q') {
         e.preventDefault();
         const isAnyFocused = document.activeElement.tagName === 'INPUT';
         if (isAnyFocused) {
