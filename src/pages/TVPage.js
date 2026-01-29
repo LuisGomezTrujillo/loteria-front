@@ -27,16 +27,16 @@ const TVPage = () => {
     const handleGlobalKeyDown = (e) => {
       const key = e.key.toLowerCase();
 
-      // Acción Toggle Foco con ENTER (Alternar entre quitar foco o ir al primer input)
+      // Acción Toggle Foco con ENTER
       if (key === 'enter') {
         e.preventDefault();
         const isAnyFocused = document.activeElement.tagName === 'INPUT';
         
         if (isAnyFocused) {
-          document.activeElement.blur(); // Quita el foco si está activo
+          document.activeElement.blur(); // Quita el foco si hay uno activo
         } else {
           if (inputRefs.current[0]) {
-            inputRefs.current[0].focus(); // Pone foco en el extremo izquierdo si estaba inactivo
+            inputRefs.current[0].focus(); // Pone el foco en el extremo izquierdo
           }
         }
         return;
@@ -46,7 +46,7 @@ const TVPage = () => {
       if (key === 'arrowdown' || key === 's') {
         if (currentIndex < plan.length - 1) {
           setCurrentIndex(prev => prev + 1);
-          setInputValues(Array(6).fill("")); // Limpia para el nuevo premio
+          setInputValues(Array(6).fill(""));
         }
         return;
       }
@@ -54,12 +54,12 @@ const TVPage = () => {
       if (key === 'arrowup' || key === 'w') {
         if (currentIndex > 0) {
           setCurrentIndex(prev => prev - 1);
-          setInputValues(Array(6).fill("")); // Limpia para el premio anterior
+          setInputValues(Array(6).fill(""));
         }
         return;
       }
 
-      // Navegación lateral global (A y D) cuando no se está escribiendo
+      // Navegación lateral global (A y D) cuando no hay foco
       const isAnyFocused = document.activeElement.tagName === 'INPUT';
       if (!isAnyFocused) {
         if (key === 'a' && inputRefs.current[0]) {
@@ -78,7 +78,7 @@ const TVPage = () => {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentIndex, plan]);
 
-  // 3. Foco inicial automático al cargar el componente o cambiar premio
+  // 3. Foco inicial automático al cargar o cambiar premio
   useEffect(() => {
     if (inputRefs.current[0]) inputRefs.current[0].focus();
   }, [currentIndex, plan]);
@@ -96,7 +96,6 @@ const TVPage = () => {
       newValues[index] = val;
       setInputValues(newValues);
       
-      // Salto automático al siguiente input
       if (val.length === maxLength && index < numInputs - 1) {
         inputRefs.current[index + 1].focus();
       }
@@ -106,7 +105,7 @@ const TVPage = () => {
   const handleInputKeyDown = (e, index) => {
     const key = e.key.toLowerCase();
     
-    // Navegación lateral entre balotas (A y D)
+    // Navegación entre balotas (A y D)
     if ((key === 'arrowleft' || key === 'a') && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -136,7 +135,6 @@ const TVPage = () => {
         {inputValues.slice(0, numInputs).map((val, index) => (
           <React.Fragment key={index}>
             {numInputs === 6 && index === 4 && <div className="serie-spacer" />}
-            
             <input
               ref={el => inputRefs.current[index] = el}
               type="text"
