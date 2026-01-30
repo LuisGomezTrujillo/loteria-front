@@ -48,12 +48,12 @@ body, html {
 
 /* --- Logos Ampliados --- */
 .coin-img-large {
-  width: 150px; 
+  width: 200px; 
   animation: spin 6s infinite linear;
 }
 
 .text-img-large {
-  height: 150px; 
+  height: 200px; 
   margin-left: 20px;
 }
 
